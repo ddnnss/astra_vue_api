@@ -1,6 +1,8 @@
 from django.http import JsonResponse
-from .models import TemplateType
-from .models import Template
+from django.shortcuts import get_object_or_404
+
+from .models import *
+
 import json
 
 def get_type(request):
@@ -20,12 +22,8 @@ def get_type(request):
 
 
 def get_templates(request):
-
-
     templates=[]
-
     all_templates = Template.objects.all()
-
     for t in all_templates:
         templates.append({
             'id':t.id,
@@ -33,7 +31,21 @@ def get_templates(request):
             'category':t.type_slug,
             'price':t.price,
             'image':t.image.url,
-            'url':t.url,
-
+            'uuid':t.uuid,
         })
     return JsonResponse(templates, safe=False)
+
+def get_template(request,uuid):
+    t = get_object_or_404(Template, uuid=uuid)
+    template = {
+            'id':t.id,
+            'url':t.url,
+            'uuid':t.uuid
+        }
+    return JsonResponse(template, safe=False)
+
+def add_to_cart(request,uuid,token):
+    t = get_object_or_404(Template, uuid=uuid)
+    cart,created = Cart.objects.get_or_create(token=token)
+    new_item = CartItem.objects.create(cart=cart,template=t)
+    return JsonResponse({'status':'ok'}, safe=False)

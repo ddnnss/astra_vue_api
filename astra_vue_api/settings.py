@@ -25,7 +25,7 @@ SECRET_KEY = '$oen)emfi)c+wm(d9l4$b3^r5%=zgxrs2#n-tzffwa$etq3o%z'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
