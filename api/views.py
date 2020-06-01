@@ -44,8 +44,25 @@ def get_template(request,uuid):
         }
     return JsonResponse(template, safe=False)
 
+
 def add_to_cart(request,uuid,token):
     t = get_object_or_404(Template, uuid=uuid)
     cart,created = Cart.objects.get_or_create(token=token)
     new_item = CartItem.objects.create(cart=cart,template=t)
     return JsonResponse({'status':'ok'}, safe=False)
+
+
+def get_cart(request,token):
+    cart = get_object_or_404(Cart,token=token)
+    cart_item=[]
+    items = CartItem.objects.filter(cart=cart)
+    for i in items:
+        cart_item.append({
+            'id':i.template.id,
+            'title':i.template.name,
+            'category':i.template.type_slug,
+            'price':i.template.price,
+            'image':i.template.image.url,
+            'uuid':i.template.uuid,
+        })
+    return JsonResponse(cart_item, safe=False)
