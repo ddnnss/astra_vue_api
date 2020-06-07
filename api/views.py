@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from .models import *
-
+import json
 import json
 
 def get_type(request):
@@ -58,6 +58,7 @@ def get_cart(request,token):
     items = CartItem.objects.filter(cart=cart)
     for i in items:
         cart_item.append({
+            'item_id':i.id,
             'id':i.template.id,
             'title':i.template.name,
             'category':i.template.type_slug,
@@ -66,3 +67,24 @@ def get_cart(request,token):
             'uuid':i.template.uuid,
         })
     return JsonResponse(cart_item, safe=False)
+
+def del_cart(request,id):
+    CartItem.objects.get(id=id).delete()
+    return JsonResponse({'result':'ok'}, safe=False)
+
+
+def new_order(request,token,data):
+    cart = get_object_or_404(Cart, token=token)
+    info = json.loads(data)
+    print(info['domain'])
+    if info['domain']:
+        print('1')
+    else:
+        print('0')
+    Order.objects.create(cart=cart,phone=info['phone'],
+                         pay=info['payment'],
+                         is_need_domain=info['domain'],
+                         is_need_hosting=info['hosting'])
+    cart.token = '0'
+    cart.save()
+    return JsonResponse({'status': 'ok'}, safe=False)
