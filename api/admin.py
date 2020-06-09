@@ -18,4 +18,5 @@ admin.site.register(Template)
 admin.site.register(CartItem)
 admin.site.register(Cart,CartAdmin)
 admin.site.register(Order)
+admin.site.register(Callback)
 # Register your models here.

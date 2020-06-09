@@ -1,7 +1,9 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from .models import *
+import settings
 import json
 import json
 
@@ -81,10 +83,32 @@ def new_order(request,token,data):
         print('1')
     else:
         print('0')
-    Order.objects.create(cart=cart,phone=info['phone'],
+    neworder = Order.objects.create(cart=cart,phone=info['phone'],
                          pay=info['payment'],
                          is_need_domain=info['domain'],
                          is_need_hosting=info['hosting'])
     cart.token = '0'
     cart.save()
+    msg_html = render_to_string('email/order.html', {
+        'cart': CartItem.objects.filter(cart=neworder.cart),
+        'phone': neworder.phone,
+        'host': neworder.is_need_hosting,
+        'domain': neworder.is_need_domain,
+        'pay': neworder.pay,
+
+        })
+
+    send_mail(f'Заказ на caйт', None, 'no-reply@specsintez-pro.ru',
+              [settings.SEND_TO_1],
+              fail_silently=False, html_message=msg_html)
+    return JsonResponse({'status': 'ok'}, safe=False)
+
+def new_callback(request,phone):
+    Callback.objects.create(phone=phone)
+    msg_html = render_to_string('email/callback.html', {
+        'phone': phone,
+    })
+    send_mail(f'Заказ звонка по поводу консультации', None, 'no-reply@specsintez-pro.ru',
+              [settings.SEND_TO_1],
+              fail_silently=False, html_message=msg_html)
     return JsonResponse({'status': 'ok'}, safe=False)

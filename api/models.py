@@ -50,3 +50,6 @@ class Order(models.Model):
     is_need_domain = models.BooleanField(default=False)
     is_need_hosting = models.BooleanField(default=False)
 
+class Callback(models.Model):
+    phone = models.CharField('Телефон', max_length=50, blank=False, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
